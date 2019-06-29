@@ -18,9 +18,9 @@ var model = {
     numShips: 3,
     shipLength: 3,
     shipsSunk: 0,
-    ships: [{ locations: ["06", "16", "26"], hits: ["", "", ""] },
-            { locations: ["24", "34", "44"], hits: ["", "", ""] },
-            { locations: ["10", "11", "12"], hits: ["", "", ""] }],
+    ships: [{ locations: [0, 0, 0], hits: ["", "", ""] },
+            { locations: [0, 0, 0], hits: ["", "", ""] },
+            { locations: [0, 0, 0], hits: ["", "", ""] }],
     fire: function(guess) {
         for (var i = 0; i < this.numShips; i++) {
             var ship = this.ships[i];
@@ -31,15 +31,18 @@ var model = {
                 ship.hits[index] = "hit";
                 view.displayHit(guess);
                 view.displayMessage("HIT!");
+
                 if (this.isSunk(ship)) {
                     view.displayMessage("You sank my battleship!");
                     this.shipsSunk++;
                 }
+
                 return true;
             }
         }
         view.displayMiss(guess);
         view.displayMessage("You missed.");
+
         return false;
     },
     isSunk: function(ship) {
@@ -49,6 +52,57 @@ var model = {
             }
         }
         return true;
+    },
+    generateShipLocations: function() {
+        var locations;
+        for (var i = 0; i < this.numShips; i++) {
+            do {
+                locations = this.generateShip();
+            } while (this.collision(locations));
+
+            this.ships[i].locations = locations;
+        }
+        console.log("Ships array: ");
+        console.log(this.ships);
+    },
+    generateShip: function() {
+        var direction = Math.floor(Math.random() * 2);
+        var row;
+        var col;
+
+        if (direction === 1) { // horizontal
+            row = Math.floor(Math.random() * this.boardSize);
+            col = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+        } else { // vertical
+            row = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+            col = Math.floor(Math.random() * this.boardSize);        
+        };
+
+        var newShipLocations = [];
+        for (var i = 0; i < this.shipLength; i++) {
+            if (direction === 1) {
+                // add location to array for new horizontal ship
+                newShipLocations.push(row + "" + (col + i));
+            } else {
+                // add location to array for new vertical ship    
+                newShipLocations.push((row + i) + "" + col);
+            }
+        }
+
+        return newShipLocations;
+    },
+    collision: function(locations) {
+        for (var i = 0; i < this.numShips; i++) {
+            var ship = this.ships[i];
+            for (var j = 0; j < locations.length; j++) {
+                if (ship.locations.indexOf(locations[j]) >= 0) {
+                    console.log("collision() returned true");
+                    return true;
+                }
+            }
+        }
+        console.log("collision() returned false");
+        return false;
     }
 };
 
@@ -66,8 +120,8 @@ var controller = {
             }
 
         }
-    }
-}
+    },
+};
 
 function parseGuess(guess) {
     var alphabet = ["A", "B", "C", "D", "E", "F", "G"];
@@ -88,22 +142,33 @@ function parseGuess(guess) {
         }
     }
     return null;
-}
+};
+
+function init() {
+    var fireButton = document.getElementById("fireButton");
+    fireButton.onclick = handleFireButton;
+
+    var guessInput = document.getElementById("guessInput");
+    guessInput.onkeypress = handleKeyPress;
+
+    model.generateShipLocations();
+};
 
 function handleFireButton() {
+    var guessInput = document.getElementById("guessInput");
+    var guess = guessInput.value;
 
-}
+    controller.processGuess(guess);
+    guessInput.value = "";
+};
 
-controller.processGuess("A0");
+function handleKeyPress(e) {
+    var fireButton = document.getElementById("fireButton");
 
-controller.processGuess("A6");
-controller.processGuess("B6");
-controller.processGuess("C6");
+    if (e.keyCode === 13) {
+        fireButton.click();
+        return false;
+    }
+};
 
-controller.processGuess("C4");
-controller.processGuess("D4");
-controller.processGuess("E4");
-
-controller.processGuess("B0");
-controller.processGuess("B1");
-controller.processGuess("B2");
+window.onload = init;
