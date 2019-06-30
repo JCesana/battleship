@@ -11,7 +11,7 @@ var view = {
         var cell = document.getElementById(location);
         cell.setAttribute("class", "miss");
     }
-}
+};
 
 var model = {
     boardSize: 7,
@@ -76,7 +76,7 @@ var model = {
         } else { // vertical
             row = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
             col = Math.floor(Math.random() * this.boardSize);        
-        };
+        }
 
         var newShipLocations = [];
         for (var i = 0; i < this.shipLength; i++) {
@@ -142,7 +142,7 @@ function parseGuess(guess) {
         }
     }
     return null;
-};
+}
 
 function init() {
     var fireButton = document.getElementById("fireButton");
@@ -152,7 +152,7 @@ function init() {
     guessInput.onkeypress = handleKeyPress;
 
     model.generateShipLocations();
-};
+}
 
 function handleFireButton() {
     var guessInput = document.getElementById("guessInput");
@@ -160,7 +160,7 @@ function handleFireButton() {
 
     controller.processGuess(guess);
     guessInput.value = "";
-};
+}
 
 function handleKeyPress(e) {
     var fireButton = document.getElementById("fireButton");
@@ -169,6 +169,6 @@ function handleKeyPress(e) {
         fireButton.click();
         return false;
     }
-};
+}
 
 window.onload = init;
